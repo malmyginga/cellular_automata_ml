@@ -42,3 +42,44 @@
         </td>
     </tr>
 </table>
+
+## Пример проведения эксперимента:
+
+```
+# Epidemic cellular automata
+
+# Импортируем необходимые пакеты
+from sklearn.neural_network import MLPClassifier
+from random import choices
+
+# Задаем функцию перехода
+# n - окрестность
+# c - кортеж с координатами клеток
+# t - текущая итерация клеточного автомата
+def probability_rule(n, c, t):
+    p = 0.1
+    out = 1
+    if n[1][1] == 0:
+        out = choices([0,1], [p**(np.sum(n)), 1 - p**(np.sum(n))])[0]
+    return out
+
+# Задаем модель для обучения
+clf = MLPClassifier(solver='adam',
+                    alpha=1e-5, 
+                    hidden_layer_sizes=(10, 10), 
+                    max_iter = 10000)
+                    
+# Создаем класс для проведения эксперимента
+experimentator_epidemic = CellularAutomataExperimentator(clf,
+                                                50,
+                                                50,
+                                                2,
+                                                probability_rule,
+                                                1,
+                                                random_initial_state=False,
+                                                distinct_training=False)
+
+# Запуск эксперимента для вероятностного клеточного автомата
+# В accuracy_epidemic получим точность на последующих итерациях
+accuracy_epidemic = experimentator_epidemic.experimentate_proba([1, 2], 10, 'Epidemic cellular automata', simple_initial_state=True)
+```
